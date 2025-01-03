@@ -102,6 +102,8 @@ local randomPeds = {
     }
 }
 
+NetworkStartSoloTutorialSession()
+
 local nationalities = {}
 
 if config.characters.limitNationalities then
@@ -375,8 +377,10 @@ local function chooseCharacter()
     SetEntityCoords(cache.ped, randomLocation.pedCoords.x, randomLocation.pedCoords.y, randomLocation.pedCoords.z, false, false, false, false)
     SetEntityHeading(cache.ped, randomLocation.pedCoords.w)
 
-    if not NetworkIsInTutorialSession() then
-        NetworkStartSoloTutorialSession()
+    NetworkStartSoloTutorialSession()
+
+    while not NetworkIsInTutorialSession() do
+        Wait(0)
     end
 
     Wait(1500)
@@ -433,11 +437,8 @@ local function chooseCharacter()
                         onSelect = function()
                             DoScreenFadeOut(10)
                             lib.callback.await('qbx_core:server:loadCharacter', false, character.citizenid)
-                            if GetResourceState('qbx_apartments'):find('start') then
-                                TriggerEvent('apartments:client:setupSpawnUI', character.citizenid)
-                            elseif GetResourceState('qbx_spawn'):find('start') then
+                            if GetResourceState('qbx_spawn'):find('start') then
                                 TriggerEvent('qb-spawn:client:setupSpawns', character.citizenid)
-                                TriggerEvent('qb-spawn:client:openUI', true)
                             else
                                 spawnLastLocation()
                             end
